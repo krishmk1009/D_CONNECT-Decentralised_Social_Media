@@ -12,7 +12,9 @@ import { Spinner, Navbar, Nav, Button, Container } from 'react-bootstrap'
 import logo from './logo.png'
 import Home from './Home.js'
 import Profile from './Profile.js'
+
 import './App.css';
+
 
 function App() {
   const [loading, setLoading] = useState(true)
@@ -46,19 +48,19 @@ function App() {
   }
   return (
     <BrowserRouter>
-      <div className="App">
+      <div className="App" style={{ backgroundColor: "Gainsboro" }}>
         <>
-          <Navbar expand="lg" bg="secondary" variant="dark">
+          <Navbar expand="lg" variant="dark" style={{ backgroundColor: "white" }}>
             <Container>
-              <Navbar.Brand href="http://www.dappuniversity.com/bootcamp">
+              <Navbar.Brand href="https://www.cresite.software" style={{ color: "black", fontWeight: "bold", marginRight: "15px" }}>
                 <img src={logo} width="40" height="40" className="" alt="" />
-                &nbsp; Decentratwitter
+                &nbsp; D-CONNECT
               </Navbar.Brand>
               <Navbar.Toggle aria-controls="responsive-navbar-nav" />
               <Navbar.Collapse id="responsive-navbar-nav">
-                <Nav className="me-auto">
-                  <Nav.Link as={Link} to="/">Home</Nav.Link>
-                  <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
+                <Nav className="me-auto" >
+                  <Nav.Link style={{ color: "black", backgroundColor: "green",marginLeft:"15px"  , borderRadius:"3px" ,color:"white"}} as={Link} to="/">Home</Nav.Link>
+                  <Nav.Link style={{ color: "black",backgroundColor: "green"  , borderRadius:"3px" ,marginLeft:"15px",color:"white" }} as={Link} to="/profile">Profile</Nav.Link>
                 </Nav>
                 <Nav>
                   {account ? (
@@ -66,14 +68,14 @@ function App() {
                       href={`https://etherscan.io/address/${account}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="button nav-button btn-sm mx-4">
-                      <Button variant="outline-light">
+                      className="button nav-button btn-sm mx-4" >
+                      <Button variant="outline-light" style={{ color: "black", border: "2px solid black" }}>
                         {account.slice(0, 5) + '...' + account.slice(38, 42)}
                       </Button>
 
                     </Nav.Link>
                   ) : (
-                    <Button onClick={web3Handler} variant="outline-light">Connect Wallet</Button>
+                    <Button onClick={web3Handler} style={{ backgroundColor: "green" }}>Connect Wallet</Button>
                   )}
                 </Nav>
               </Navbar.Collapse>
@@ -84,7 +86,9 @@ function App() {
           {loading ? (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
               <Spinner animation="border" style={{ display: 'flex' }} />
-              <p className='mx-3 my-0'>Awaiting Metamask Connection...</p>
+              <p className='mx-3 my-0'>Please Connect Your Metamask Wallet...</p>
+              <img src={logo} width="40" height="40" className="" alt="" />
+
             </div>
           ) : (
             <Routes>

@@ -2,7 +2,23 @@ import { useState, useEffect } from 'react'
 import { ethers } from "ethers"
 import { Row, Form, Button, Card, ListGroup, Col } from 'react-bootstrap'
 import { create as ipfsHttpClient } from 'ipfs-http-client'
-const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0')
+import { Buffer } from 'buffer';
+
+// const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0')
+
+const projectId = process.env.REACT_APP_PROJECT_ID
+const projectSecret = process.env.REACT_APP_PROJECT_SECRET_ID
+
+const auth = "Basic " + Buffer.from(projectId + ":" + projectSecret).toString('base64');
+
+const client = ipfsHttpClient({
+    host: 'ipfs.infura.io',
+    port: 5001,
+    protocol: 'https',
+    headers: {
+        authorization: auth
+    }
+})
 
 
 const App = ({ contract }) => {
@@ -21,6 +37,7 @@ const App = ({ contract }) => {
             // fetch nft metadata
             const response = await fetch(uri)
             const metadata = await response.json()
+            console.log(metadata)
             return ({
                 id: i,
                 username: metadata.username,
@@ -43,7 +60,9 @@ const App = ({ contract }) => {
         if (typeof file !== 'undefined') {
             try {
                 const result = await client.add(file)
-                setAvatar(`https://ipfs.infura.io/ipfs/${result.path}`)
+                setAvatar(`https://dappsocial.infura-ipfs.io/ipfs/${result.path}`)
+
+                console.log("succesfully uploaded to ipfs")
             } catch (error) {
                 console.log("ipfs image upload error: ", error)
             }
@@ -54,7 +73,7 @@ const App = ({ contract }) => {
         try {
             const result = await client.add(JSON.stringify({ avatar, username }))
             setLoading(true)
-            await (await contract.mint(`https://ipfs.infura.io/ipfs/${result.path}`)).wait()
+            await (await contract.mint(`https://dappsocial.infura-ipfs.io/ipfs/${result.path}`)).wait()
             loadMyNFTs()
         } catch (error) {
             window.alert("ipfs uri upload error: ", error)
@@ -78,14 +97,14 @@ const App = ({ contract }) => {
         </div>
     )
     return (
-        <div className="mt-4 text-center">
-            {profile ? (<div className="mb-3"><h3 className="mb-3">{profile.username}</h3>
-                <img className="mb-3" style={{ width: '400px' }} src={profile.avatar} /></div>)
+        <div style={{ backgroundColor: "Gainsboro" }} className="mt-4 text-center">
+            {profile ? (<div style={{ backgroundColor: "white", borderRadius: "10px", margin: "auto", paddingTop: "10px", }} className="mb-3"><h3 className="mb-3"> Username : {profile.username}</h3>
+                <img className="mb-3" style={{ width: '400px', borderRadius: "10px" }} src={profile.avatar} /></div>)
                 :
                 <h4 className="mb-4">No NFT profile, please create one...</h4>}
 
             <div className="row">
-                <main role="main" className="col-lg-12 mx-auto" style={{ maxWidth: '1000px' }}>
+                <main role="main" className="col-lg-12 mx-auto" style={{ maxWidth: '400px', display: "inline-block" }}>
                     <div className="content mx-auto">
                         <Row className="g-4">
                             <Form.Control
@@ -96,8 +115,8 @@ const App = ({ contract }) => {
                             />
                             <Form.Control onChange={(e) => setUsername(e.target.value)} size="lg" required type="text" placeholder="Username" />
                             <div className="d-grid px-0">
-                                <Button onClick={mintProfile} variant="primary" size="lg">
-                                    Mint NFT Profile
+                                <Button onClick={mintProfile} style={{ backgroundColor: "green" }} variant="primary" size="lg">
+                                    Create NFT Profile
                                 </Button>
                             </div>
                         </Row>
@@ -109,15 +128,17 @@ const App = ({ contract }) => {
                     {nfts.map((nft, idx) => {
                         if (nft.id === profile.id) return
                         return (
-                            <Col key={idx} className="overflow-hidden">
+                            <Col key={idx} className="overflow-hidden" style={{ backgroundColor: "white", paddingTop: "10px", paddingBottom: "10px" }}>
+                               
                                 <Card>
+
                                     <Card.Img variant="top" src={nft.avatar} />
                                     <Card.Body color="secondary">
-                                        <Card.Title>{nft.username}</Card.Title>
+                                        <Card.Title> {nft.username}</Card.Title>
                                     </Card.Body>
                                     <Card.Footer>
                                         <div className='d-grid'>
-                                            <Button onClick={() => switchProfile(nft)} variant="primary" size="lg">
+                                            <Button style={{ backgroundColor: "green" }} onClick={() => switchProfile(nft)} variant="primary" size="lg">
                                                 Set as Profile
                                             </Button>
                                         </div>

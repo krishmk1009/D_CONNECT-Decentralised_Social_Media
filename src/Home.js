@@ -2,8 +2,24 @@ import { useState, useEffect } from 'react'
 import { ethers } from "ethers"
 import { Row, Form, Button, Card, ListGroup } from 'react-bootstrap'
 import { create as ipfsHttpClient } from 'ipfs-http-client'
-const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0')
+import { Buffer } from 'buffer';
+import Sidebar from './Sidebar';
 
+// const client = ipfsHttpClient('https://ipfs.infura.io:5001/api/v0')
+
+const projectId = process.env.REACT_APP_PROJECT_ID
+const projectSecret = process.env.REACT_APP_PROJECT_SECRET_ID
+
+const auth = "Basic " + Buffer.from(projectId + ":" + projectSecret).toString('base64');
+
+const client = ipfsHttpClient({
+    host: 'ipfs.infura.io',
+    port: 5001,
+    protocol: 'https',
+    headers: {
+        authorization: auth
+    }
+})
 const Home = ({ contract }) => {
     const [posts, setPosts] = useState('')
     const [hasProfile, setHasProfile] = useState(false)
@@ -23,7 +39,7 @@ const Home = ({ contract }) => {
         // Fetch metadata of each post and add that to post object.
         let posts = await Promise.all(results.map(async i => {
             // use hash to fetch the post's metadata stored on ipfs 
-            let response = await fetch(`https://ipfs.infura.io/ipfs/${i.hash}`)
+            let response = await fetch(`https://dappsocial.infura-ipfs.io/ipfs/${i.hash}`)
             const metadataPost = await response.json()
             // get authors nft profile
             const nftId = await contract.profiles(i.author)
@@ -54,6 +70,7 @@ const Home = ({ contract }) => {
     }
     useEffect(() => {
         if (!posts) {
+            console.log(projectId)
             loadPosts()
         }
     })
@@ -85,15 +102,18 @@ const Home = ({ contract }) => {
         </div>
     )
     return (
-        <div className="container-fluid mt-5">
+        <div className="container-fluid mt-5" >
+
             {hasProfile ?
-                (<div className="row">
+                (<div className="row" style={{ backgroundColor: "white", margin: "auto", paddingTop: "20px", paddingBottom: "25px", width: "700px", borderRadius: "5px" }}>
                     <main role="main" className="col-lg-12 mx-auto" style={{ maxWidth: '1000px' }}>
                         <div className="content mx-auto">
+
                             <Row className="g-4">
-                                <Form.Control onChange={(e) => setPost(e.target.value)} size="lg" required as="textarea" />
+
+                                <Form.Control onChange={(e) => setPost(e.target.value)} size="lg" required as="textarea" style={{ width: "600px", margin: "auto", marginTop: "30px" }} placeholder='write your post here...' />
                                 <div className="d-grid px-0">
-                                    <Button onClick={uploadPost} variant="primary" size="lg">
+                                    <Button style={{ backgroundColor: "green", width: "500px", margin: "auto" }} onClick={uploadPost} variant="primary" size="lg">
                                         Post!
                                     </Button>
                                 </div>
@@ -115,8 +135,8 @@ const Home = ({ contract }) => {
             {posts.length > 0 ?
                 posts.map((post, key) => {
                     return (
-                        <div key={key} className="col-lg-12 my-3 mx-auto" style={{ width: '1000px' }}>
-                            <Card border="primary">
+                        <div key={key} className="col-lg-12 my-3 " style={{ width: '700px', margin: "auto" }}>
+                            <Card style={{ borderRadius: "5px", padding: "10px", paddingBottom: "10px" }}>
                                 <Card.Header>
                                     <img
                                         className='mr-2'
@@ -137,7 +157,7 @@ const Home = ({ contract }) => {
                                     </Card.Title>
                                 </Card.Body>
                                 <Card.Footer className="list-group-item">
-                                    <div className="d-inline mt-auto float-start">Tip Amount: {ethers.utils.formatEther(post.tipAmount)} ETH</div>
+                                    <div className="d-inline mt-auto float-start" >Tip Amount: {ethers.utils.formatEther(post.tipAmount)} ETH</div>
                                     {address === post.author.address || !hasProfile ?
                                         null : <div className="d-inline float-end">
                                             <Button onClick={() => tip(post)} className="px-0 py-0 font-size-16" variant="link" size="md">
